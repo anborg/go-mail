@@ -1,0 +1,14 @@
+# fake-smtp-server
+mailserver:
+    host: "0.0.0.0"
+    port: 1025
+    user: "me@gmail.com"
+    password: ""
+#gmail 
+# mailserver:
+#     host: "smtp.gmail.com"
+#     port: 465
+#     user: "pad.@gmail.com"
+#     password: ""
+fileProcessor:
+    path:

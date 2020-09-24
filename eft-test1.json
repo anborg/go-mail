@@ -1,0 +1,23 @@
+{
+    "eftInfos":[
+        {
+            "todayDate" : "2020-09-05",
+            "customerName" : "Jane Inc",
+            "email" : "pad.tan919@gmail.com",
+            "bankAccountNumber" : "111222333",
+            "invoiceNumber" : "222",
+            "transferDate" : "2020-09-01",
+            "transferAmount" : "50.00"
+        },
+        {
+            "todayDate" : "2020-09-05",
+            "customerName" : "John Inc",
+            "email" : "pad.tan919@gmail.com",
+            "bankAccountNumber" : "111222333",
+            "invoiceNumber" : "222",
+            "transferDate" : "2020-09-01",
+            "transferAmount" : "50.00"
+        }
+ 
+    ]
+}
