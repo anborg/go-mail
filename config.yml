@@ -10,5 +10,6 @@ mailserver:
 #     port: 465
 #     user: "pad.@gmail.com"
 #     password: ""
-fileProcessor:
-    path:
+fileFilterConfig:
+    globPath: "/Volumes/data01/projects/projects_go/go-mail/inputfile*"
+    olderThanSeconds: 2
