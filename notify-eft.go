@@ -13,7 +13,7 @@ func main() {
 		log.Println(config)
 	}
 	//process input csv file
-	eftInfos, err := getEftFromCSV("inputfile.csv")
+	eftInfos, err := getEftFromCSV("cayinput556.csv")
 	if err != nil {
 		log.Fatalf("Error reading csv: %v", err)
 	}

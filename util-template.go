@@ -18,10 +18,12 @@ import (
 // }
 
 func ExecEftTemplate(eftinfo EftInfo) (bytes.Buffer, error) { //eftInfo EftInfo
-	return execTempate("templates/EFT_EMAIL_TEMPLATE.gohtml", eftinfo)
+	// eftTemplatePath := "templates/EFT_EMAIL_TEMPLATE.gohtml"
+	eftTemplatePath := "templates/DEFAULT.gohtml"
+	return execTempate(eftTemplatePath, eftinfo)
 }
-func execReceipt(eftinfo EftInfo) (bytes.Buffer, error) { //eftInfo EftInfo
-	return execTempate("templates/EFT_EMAIL_TEMPLATE.gohtml", eftinfo)
+func execReceipt(eftTemplatePath string, eftinfo EftInfo) (bytes.Buffer, error) { //eftInfo EftInfo
+	return execTempate(eftTemplatePath, eftinfo)
 }
 
 func execTempate(path string, data interface{}) (bytes.Buffer, error) {
@@ -35,22 +37,4 @@ func execTempate(path string, data interface{}) (bytes.Buffer, error) {
 		return bytesHtml, err
 	}
 	return bytesHtml, nil
-}
-
-//EftInfos arry of eft info objects
-type EftInfos struct {
-	EftInfos []EftInfo `json:"eftInfos"`
-}
-
-//EftInfo object for one email
-type EftInfo struct {
-	TodayDate         string `json:"todayDate"`
-	CustomerName      string `json:"customerName"`
-	Email             string `json:"email"`
-	BankAccountNumber string `json:"bankAccountNumber"`
-	//EFT Payment detail - could be []
-	InvoiceNumber    string `json:"invoiceNumber"`
-	TransferDate     string `json:"transferDate"`
-	TransferAmount   string `json:"transferAmount"`
-	PaymentReference string `json:"paymentReference"`
 }
