@@ -2,9 +2,22 @@ package main
 
 import (
 	"log"
+	"os"
+	"io"
 )
 
+
 func main() {
+	//prepare log
+	f, err := os.OpenFile("notify-eft.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	wrt := io.MultiWriter(os.Stdout, f)
+	log.SetOutput(wrt)
+
+
 	//Read config
 	var config Config
 	if err := readConfig("config.yml", &config); err != nil {
