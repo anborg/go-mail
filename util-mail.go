@@ -16,9 +16,9 @@ type EmailInfo struct {
 	Body    string
 }
 
-func batchSendMail(config Config, myarray EftInfos) error {
+func batchSendMail(config MailServerConfig, myarray EftInfos) error {
 	// Settings for SMTP server
-	dialer := gomail.NewDialer(config.MailServer.Host, config.MailServer.Port, config.MailServer.User, config.MailServer.Password)
+	dialer := gomail.NewDialer(config.Host, config.Port, config.User, config.Password)
 
 	// This is only needed when SSL/TLS certificate is not valid on server.
 	// In production this should be set to false.
@@ -39,7 +39,7 @@ func batchSendMail(config Config, myarray EftInfos) error {
 		}
 		log.Println(i, eftinfo)
 		// Set E-Mail sender
-		m.SetHeader("From", config.MailServer.User)
+		m.SetHeader("From", config.User)
 		m.SetHeader("To", eftinfo.Email)
 		//m.SetHeader("Cc", "nimbus.prem@gmail.com")
 		//m.SetHeader("Bcc", "office@example.com", "anotheroffice@example.com")

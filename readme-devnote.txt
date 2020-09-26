@@ -7,13 +7,15 @@
 
 #start fake smtp server
 https://github.com/ReachFive/fake-smtp-server
+http://0.0.0.0:1080
+
 su admin
 npm install -g fake-smtp-server
 exit
 fake-smtp-server
 
 # test 
-go build gomail.go
+go build *.go
 ./gomail
 
 
