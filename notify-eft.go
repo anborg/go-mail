@@ -7,6 +7,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+
 func main() {
 	//read cmdline
 	var configFile string
