@@ -1,37 +1,51 @@
 package main
 
 import (
+	"flag"
 	"log"
-	"os"
-	"io"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-
 func main() {
-	//prepare log
-	f, err := os.OpenFile("notify-eft.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	defer f.Close()
-	wrt := io.MultiWriter(os.Stdout, f)
-	log.SetOutput(wrt)
-
-
+	//read cmdline
+	var configFile string
+	flag.StringVar(&configFile, "configFile", "config.yml", "Provid config file path,  e.g c:/my/dir/eftconf.yml")
+	flag.Parse()
 	//Read config
+	// configFile :=
 	var config Config
-	if err := readConfig("config.yml", &config); err != nil {
-		log.Fatalf("Unmarshal: %v", err)
+	if err := config.readConfig(configFile); err != nil {
+		log.Fatalf("Error reading config file :", configFile, err)
 	} else {
 		log.Println(config)
 	}
-	//process input csv file
-	eftInfos, err := getEftFromCSV("cayinput556.csv")
+
+	//config log
+	logconf := config.AppConfig.LumberjackLogConfig
+	log.SetOutput(&lumberjack.Logger{Filename: logconf.Filename, MaxSize: logconf.MaxSize, MaxBackups: logconf.MaxBackups, MaxAge: logconf.MaxAge, Compress: logconf.Compress})
+
+	//trigger -- filesTOprocses
+	files, err := filesMatch(config.FileProcessorConfig)
 	if err != nil {
-		log.Fatalf("Error reading csv: %v", err)
+		log.Println(err)
 	}
-	//send mails
-	if err := batchSendMail(config, eftInfos); err != nil {
-		log.Fatalln(err)
+	log.Println(files)
+
+	for i, inputFileInfo := range files {
+		//process input csv file
+
+		eftInfos, err := getEftFromCSV(inputFileInfo.path)
+		if err != nil {
+			log.Println("Error parsing input file:", i, inputFileInfo.path, err) //Go to next file. Email?
+		}
+		//send mails
+		err1 := batchSendMail(config.MailServerConfig, eftInfos)
+		if err1 != nil {
+			log.Println("Error sending emails for input file:", i, inputFileInfo.path, err1) //Go to next file. Email?
+		}
+		log.Println("Processed done:", i, inputFileInfo.path, "Emails sent #: ", len(eftInfos.EftInfos)) //Go to next file. Email?
+
 	}
+
 } //main

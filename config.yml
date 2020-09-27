@@ -1,15 +1,29 @@
+app:
+    logDir: "logs"
+    lumberJackLogging:
+        filename:   "logs/notify-eft/eft.log"
+        maxSize:    500
+        maxBackups: 3
+        maxAge:     28
+        compress: true
+
+fileProcessor:
+    globPath: "*556*.csv"
+    olderThanSeconds: 2
+    inputDir : "C:\\data\\projects_go\\go-mail\\input\\"
+    doneDir : "C:\\data\\projects_go\\go-mail\\done\\"
+    errorDir : "C:\\data\\projects_go\\go-mail\\error\\"
+
+
 # fake-smtp-server
-mailserver:
+mailServer:
     host: "0.0.0.0"
     port: 1025
     user: "me@gmail.com"
     password: ""
 #gmail 
-# mailserver:
+# mailServer:
 #     host: "smtp.gmail.com"
 #     port: 465
 #     user: "@gmail.com"
 #     password: ""
-fileFilterConfig:
-    globPath: "/Volumes/data01/projects/projects_go/go-mail/inputfile*"
-    olderThanSeconds: 2
