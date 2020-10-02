@@ -14,11 +14,13 @@ import (
 
 func getEftFromCSV(path string) (EftInfos, error) {
 	var eftInfos EftInfos
+	log.Println("Opening file " + path)
 	csvfile, err := os.Open(path)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error opening "+path, err)
 		return eftInfos, err
 	}
+	defer csvfile.Close()
 	r := csv.NewReader(csvfile)
 	r.FieldsPerRecord = -1 // optional
 	r.TrimLeadingSpace = true

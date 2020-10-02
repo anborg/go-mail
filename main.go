@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
+	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -34,19 +36,22 @@ func main() {
 
 	for _, inputFileInfo := range files {
 		//process input csv file
-		if err:= process(inputFileInfo.path, config.MailServerConfig); err !=nil{
-			
-			postProcess(inputFileInfo.)
+		if err := process(inputFileInfo.path, config.MailServerConfig); err != nil {
+			log.Println(err)
+			postProcess(inputFileInfo, config.FileProcessorConfig.ErrorDir)
+		} else {
+			postProcess(inputFileInfo, config.FileProcessorConfig.DoneDir)
 		}
 	}
 
 } //main
-func postProcess(filePath string, targetPath string){
-
-	e := os.Rename(filePath, filePath) 
-    if e != nil { 
-        log.Fatal(e) 
-    } 
+func postProcess(fileInfo InputFileInfo, targetPath string) {
+	currentfileName := fileInfo.info.Name()
+	newFileName := currentfileName + time.Now().Format("2020-01-31_154560.555")
+	newfullName := targetPath + newFileName
+	if e := os.Rename(fileInfo.path, newfullName); e != nil {
+		log.Fatal("Error moving processed file to target dir: ", newfullName, e)
+	} //
 }
 
 func process(filePath string, mailConf MailServerConfig) error {
@@ -64,5 +69,5 @@ func process(filePath string, mailConf MailServerConfig) error {
 	} else { //success
 		log.Println("Processed done:", filePath, "Emails sent #: ", len(eftInfos.EftInfos)) //Go to next file. Email?
 	}
-
+	return nil
 }

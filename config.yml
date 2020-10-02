@@ -1,3 +1,4 @@
+
 app:
     logDir: "logs"
     lumberJackLogging:
@@ -18,21 +19,21 @@ fileProcessor:
     errorDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\error\\"
 
 
-# mk
-# mailserver:
-#     host: "mailint.markham.ca"
-#     port: 25
-#     user: "pnataraj@markham.ca"
-#     password: ""
 # fake-smtp-server
 mailServer:
     host: "0.0.0.0"
     port: 1025
     user: "me@gmail.com"
     password: ""
+# mk
+# mailserver:
+#     host: "mailint.markham.ca"
+#     port: 25
+#     user: "pnataraj@markham.ca"
+#     password: ""
 
 #gmail 
-# mailServer:
+# mailserver:
 #     host: "smtp.gmail.com"
 #     port: 465
 #     user: "@gmail.com"

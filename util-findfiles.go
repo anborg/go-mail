@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func main1() {
+func main12() {
 	// basePath := "/Volumes/data01/projects/projects_go/go-mail/inputfile*"
 	basePath := "C:\\data\\projects_go\\go-mail\\input\\"
 	conf := FileProcessorConfig{GlobPath: "*556*.csv", InputDir: basePath, OlderThanSeconds: 2}
@@ -26,7 +26,7 @@ func isOlderThanSecs(fileTime time.Time, olderSec int) bool {
 	//log.Println("Now:", time.Now(), ", Cutoff:", cutoff, ", diff:", diff)
 	return diff > cutoff
 }
-func filesMatch(conf FileProcessorConfig) (files []MyNonsenseWorkaroundFileInfo, err error) {
+func filesMatch(conf FileProcessorConfig) (files []InputFileInfo, err error) {
 	matchGlob := conf.InputDir + conf.GlobPath //path.Join - Does not work for windows(see log snippet below), going back to +
 	log.Println("Find match for:", matchGlob)
 	// 2020/09/26 21:31:59 Find match for: C:\data\projects_go\go-mail\input/*556*.csv
@@ -46,7 +46,7 @@ func filesMatch(conf FileProcessorConfig) (files []MyNonsenseWorkaroundFileInfo,
 				if isOlderThanSecs(info.ModTime(), conf.OlderThanSeconds) {
 					log.Println("Match: ", walkPath)
 				}
-				myNonsenseFinfoWithPath := MyNonsenseWorkaroundFileInfo{path: walkPath, info: info}
+				myNonsenseFinfoWithPath := InputFileInfo{path: walkPath, info: info}
 				files = append(files, myNonsenseFinfoWithPath) //fileInfo is expensive, just return and reuse
 			} else {
 				//fmt.Println("Skip: ", walkPath, info.Size())
@@ -57,7 +57,7 @@ func filesMatch(conf FileProcessorConfig) (files []MyNonsenseWorkaroundFileInfo,
 	return
 }
 
-type MyNonsenseWorkaroundFileInfo struct {
+type InputFileInfo struct {
 	path string
 	info os.FileInfo
 }
