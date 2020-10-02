@@ -26,7 +26,7 @@ func batchSendMail(config MailServerConfig, myarray EftInfos) error {
 
 	s, err := dialer.Dial()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	m := gomail.NewMessage()

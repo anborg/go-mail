@@ -8,19 +8,29 @@ app:
         compress: true
 
 fileProcessor:
-    globPath: "*556*.csv"
+    globPath: "cayinput565*.csv"
     olderThanSeconds: 2
-    inputDir : "C:\\data\\projects_go\\go-mail\\input\\"
-    doneDir : "C:\\data\\projects_go\\go-mail\\done\\"
-    errorDir : "C:\\data\\projects_go\\go-mail\\error\\"
+    # inputDir : "C:\\data\\projects_go\\go-mail\\input\\"
+    # doneDir : "C:\\data\\projects_go\\go-mail\\done\\"
+    # errorDir : "C:\\data\\projects_go\\go-mail\\error\\"
+    inputDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\"
+    doneDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\done\\"
+    errorDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\error\\"
 
 
+# mk
+# mailserver:
+#     host: "mailint.markham.ca"
+#     port: 25
+#     user: "pnataraj@markham.ca"
+#     password: ""
 # fake-smtp-server
 mailServer:
     host: "0.0.0.0"
     port: 1025
     user: "me@gmail.com"
     password: ""
+
 #gmail 
 # mailServer:
 #     host: "smtp.gmail.com"
