@@ -15,15 +15,14 @@ func main() {
 	flag.StringVar(&configFile, "configFile", "config.yml", "Provid config file path,  e.g c:/my/dir/eftconf.yml")
 	flag.Parse()
 	//Read config
-	// configFile :=
 	var config Config
 	if err := config.readConfig(configFile); err != nil {
 		log.Fatalf("Error reading config file :", configFile, err)
 	} else {
-		log.Println(config)
+		log.Println("Config: ", config)
+		log.Println("Check log file for details :", config.AppConfig.LumberjackLogConfig.Filename)
 	}
-
-	//config log
+	//config log //TODO perhaps long to system.out sstem.error and then use infra to process log location/output?
 	logconf := config.AppConfig.LumberjackLogConfig
 	log.SetOutput(&lumberjack.Logger{Filename: logconf.Filename, MaxSize: logconf.MaxSize, MaxBackups: logconf.MaxBackups, MaxAge: logconf.MaxAge, Compress: logconf.Compress})
 
@@ -39,7 +38,8 @@ func main() {
 		if err := process(inputFileInfo.path, config.MailServerConfig); err != nil {
 			log.Println(err)
 			postProcess(inputFileInfo, config.FileProcessorConfig.ErrorDir)
-		} else {
+		} else {// on error just move that file so other files in input dir can be processed
+		    //email eft processing error?
 			postProcess(inputFileInfo, config.FileProcessorConfig.DoneDir)
 		}
 	}
@@ -66,8 +66,8 @@ func process(filePath string, mailConf MailServerConfig) error {
 	if err1 != nil {
 		log.Println("Error sending emails for input file:", filePath, err1) //Go to next file. Email?
 		return err1
-	} else { //success
-		log.Println("Processed done:", filePath, "Emails sent #: ", len(eftInfos.EftInfos)) //Go to next file. Email?
 	}
+	log.Println("Processed done:", filePath, "Emails sent #: ", len(eftInfos.EftInfos)) //Go to next file. Email?
+
 	return nil
 }

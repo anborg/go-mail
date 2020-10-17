@@ -21,11 +21,14 @@ type Config struct {
 	FileProcessorConfig FileProcessorConfig `yaml:"fileProcessor"`
 	MailServerConfig    MailServerConfig    `yaml:"mailServer"`
 }
+
+// AppConfig App related config - eg logging
 type AppConfig struct {
 	LogDir              string              `yaml:"logDir"`
 	LumberjackLogConfig LumberjackLogConfig `yaml:"lumberJackLogging"`
 }
 
+// LumberjackLogConfig Loggin config
 type LumberjackLogConfig struct {
 	Filename   string `yaml:"filename" json:"Filename,string"`
 	MaxSize    int    `yaml:"maxSize" json:"MaxSize,int"`
@@ -34,6 +37,7 @@ type LumberjackLogConfig struct {
 	Compress   bool   `yaml:"compress" json:"Compress,bool"`
 }
 
+// FileProcessorConfig Files to pocess. Specify  which/where/when. which (glob), where (dir), when (old/young)
 type FileProcessorConfig struct {
 	GlobPath         string `yaml:"globPath"`
 	OlderThanSeconds int    `yaml:"olderThanSeconds"`
@@ -42,6 +46,7 @@ type FileProcessorConfig struct {
 	ErrorDir         string `yaml:"errorDir"`
 }
 
+// MailServerConfig smtp server details
 type MailServerConfig struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`

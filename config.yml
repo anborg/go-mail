@@ -1,4 +1,3 @@
-
 app:
     logDir: "logs"
     lumberJackLogging:
@@ -9,14 +8,14 @@ app:
         compress: true
 
 fileProcessor:
-    globPath: "cayinput565*.csv"
+    globPath: "cayinput566*.csv"
     olderThanSeconds: 2
-    # inputDir : "C:\\data\\projects_go\\go-mail\\input\\"
-    # doneDir : "C:\\data\\projects_go\\go-mail\\done\\"
-    # errorDir : "C:\\data\\projects_go\\go-mail\\error\\"
-    inputDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\"
-    doneDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\done\\"
-    errorDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\error\\"
+    inputDir : "C:\\data\\projects\\projects_go\\go-mail\\input\\"
+    doneDir  : "C:\\data\\projects\\projects_go\\go-mail\\done\\"
+    errorDir : "C:\\data\\projects\\projects_go\\go-mail\\error\\"
+    # inputDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\"
+    # doneDir  : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\done\\"
+    # errorDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\error\\"
 
 
 # fake-smtp-server

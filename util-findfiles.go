@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"path/filepath"
@@ -10,8 +11,9 @@ import (
 
 func main12() {
 	// basePath := "/Volumes/data01/projects/projects_go/go-mail/inputfile*"
-	basePath := "C:\\data\\projects_go\\go-mail\\input\\"
-	conf := FileProcessorConfig{GlobPath: "*556*.csv", InputDir: basePath, OlderThanSeconds: 2}
+	//basePath := "C:\\data\\projects\\projects_go\\go-mail\\input\\"
+	basePath := "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\"
+	conf := FileProcessorConfig{GlobPath: "*566*.csv", InputDir: basePath, OlderThanSeconds: 2}
 	files, err := filesMatch(conf)
 	if err != nil {
 		log.Println(err)
@@ -26,15 +28,27 @@ func isOlderThanSecs(fileTime time.Time, olderSec int) bool {
 	//log.Println("Now:", time.Now(), ", Cutoff:", cutoff, ", diff:", diff)
 	return diff > cutoff
 }
+
+func isReadyForCayantaEFT(fileInfo InputFileInfo, conf FileProcessorConfig) bool {
+	if isOlderThanSecs(fileInfo.info.ModTime(), conf.OlderThanSeconds) == false {
+		return false //too new, pass ...let time go..
+	}
+	return isBankFileUploaded(fileInfo)
+}
+
+func isBankFileUploaded(fileInfo InputFileInfo) bool {
+	bankfilepath := strings.ReplaceAll(fileInfo.path, "566", "565")
+	//log.Println("Check for this bank file : ", bankfilepath)
+	if fileExists(bankfilepath) {
+		log.Println("Bank file not processet YET! Skip: ", fileInfo.info.Name(), bankfilepath)
+		return false
+	}
+	return true
+}
+
 func filesMatch(conf FileProcessorConfig) (files []InputFileInfo, err error) {
 	matchGlob := conf.InputDir + conf.GlobPath //path.Join - Does not work for windows(see log snippet below), going back to +
 	log.Println("Find match for:", matchGlob)
-	// 2020/09/26 21:31:59 Find match for: C:\data\projects_go\go-mail\input/*556*.csv
-	// 2020/09/26 21:31:59 FIle : C:\data\projects_go\go-mail\input/*556*.csv C:\data\projects_go\go-mail\input
-	// 2020/09/26 21:31:59 FIle : C:\data\projects_go\go-mail\input/*556*.csv C:\data\projects_go\go-mail\input\input556.csv
-	// 2020/09/26 21:31:59 []  <- hmm no files found! input566.csv must be found.
-
-	// var files []os.FileInfo
 	err = filepath.Walk(conf.InputDir,
 		func(walkPath string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -42,14 +56,13 @@ func filesMatch(conf FileProcessorConfig) (files []InputFileInfo, err error) {
 			}
 			// log.Println("File :", matchGlob, walkPath)
 			if matched, _ := filepath.Match(matchGlob, walkPath); matched == true { //info.Mode().IsRegular()
-
-				if isOlderThanSecs(info.ModTime(), conf.OlderThanSeconds) {
-					log.Println("Match: ", walkPath)
+				//fmt.Println("Yes glob match : ", walkPath, info.Size())
+				inputFileInfo := InputFileInfo{path: walkPath, info: info}
+				if isBankFileUploaded(inputFileInfo) == true {
+					files = append(files, inputFileInfo) //fileInfo is expensive, just return and reuse
 				}
-				myNonsenseFinfoWithPath := InputFileInfo{path: walkPath, info: info}
-				files = append(files, myNonsenseFinfoWithPath) //fileInfo is expensive, just return and reuse
 			} else {
-				//fmt.Println("Skip: ", walkPath, info.Size())
+				//fmt.Println("No glob match - Skip: ", walkPath, info.Size())
 			}
 
 			return nil
@@ -57,35 +70,18 @@ func filesMatch(conf FileProcessorConfig) (files []InputFileInfo, err error) {
 	return
 }
 
+// InputFileInfo wrapper to store path and os file info
 type InputFileInfo struct {
 	path string
 	info os.FileInfo
 }
 
-// func filesMatch(conf FileFilterConfig) (files []os.FileInfo, err error) { //<- chan string
-// 	now := time.Now()
-// 	path.Split(conf.globPath)
-// 	fileInfos, _ := glob(conf.globPath)
-// 	for finf := range fileInfos {
-// 		if finf.Mode().IsRegular() {
-// 			if isOlderThanSecs(finf.ModTime(), conf.olderThanSeconds) {
-// 				files = append(files, finf)
-// 			}else{
-// 				log.Println("Skipped", finf.Name())
-// 			}
-// 		}
-// 	}
-// 	return
-// }
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	//log.Println("fileExists(): info=", info)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
 
-// copy of filpath.Glob but directly returning FileInfo
-// func glob(dir string, ext string) ([]os.FileInfo, error) {
-// 	files := []os.FileInfo
-// 	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-// 		if filepath.Ext(path) == ext {
-// 			files = append(files, f)
-// 		}
-// 		return nil
-// 	})
-// 	return files, err
-// }

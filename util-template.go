@@ -17,6 +17,7 @@ import (
 // 	}
 // }
 
+// ExecEftTemplate apply info on Template to create html
 func ExecEftTemplate(eftinfo EftInfo) (bytes.Buffer, error) { //eftInfo EftInfo
 	// eftTemplatePath := "templates/EFT_EMAIL_TEMPLATE.gohtml"
 	eftTemplatePath := "templates/DEFAULT.gohtml"
