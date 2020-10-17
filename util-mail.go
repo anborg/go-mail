@@ -33,6 +33,7 @@ func batchSendMail(config MailServerConfig, myarray EftInfos) error {
 
 	m := gomail.NewMessage()
 	for i := 0; i < len(myarray.EftInfos); i++ {
+		m.Reset()
 		var eftinfo EftInfo = myarray.EftInfos[i]
 		eftinfo.TodayDate = time.Now().Format("2006-01-02 15:04:05 Monday")
 		bytesHtml, err := ExecEftTemplate(eftinfo)
@@ -53,9 +54,10 @@ func batchSendMail(config MailServerConfig, myarray EftInfos) error {
 		//m.Attach("myfile1.pdf")
 
 		if err := gomail.Send(s, m); err != nil {
-			log.Printf("Could not send email to %q: %v", eftinfo.Email, err)
+			//log.Printf("Could not send email to %q: %v", eftinfo.Email, err)
+			return err
 		}
-		m.Reset()
+		//m.Reset()
 	}
 
 	return nil

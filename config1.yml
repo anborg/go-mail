@@ -8,7 +8,7 @@ app:
         compress: true
 
 fileProcessor:
-    globPath: "cayinput566*.csv"
+    globPath: "*input566*.csv"
     olderThanSeconds: 2
     inputDir : "C:\\data\\projects\\projects_go\\go-mail\\input\\"
     doneDir  : "C:\\data\\projects\\projects_go\\go-mail\\done\\"

@@ -22,12 +22,17 @@ func main() {
 		log.Println("Config: ", config)
 		log.Println("Check log file for details :", config.AppConfig.LumberjackLogConfig.Filename)
 	}
+
 	//config log //TODO perhaps long to system.out sstem.error and then use infra to process log location/output?
 	logconf := config.AppConfig.LumberjackLogConfig
 	log.SetOutput(&lumberjack.Logger{Filename: logconf.Filename, MaxSize: logconf.MaxSize, MaxBackups: logconf.MaxBackups, MaxAge: logconf.MaxAge, Compress: logconf.Compress})
+	fileProcessorConf := config.FileProcessorConfig
+	if err := ensureMandatoryDirsExist(fileProcessorConf.InputDir, fileProcessorConf.DoneDir, fileProcessorConf.ErrorDir); err != nil {
+		log.Fatal(err)
+	}
 
 	//trigger -- filesToProcses
-	files, err := filesMatch(config.FileProcessorConfig)
+	files, err := filesMatch(fileProcessorConf)
 	if err != nil {
 		log.Println(err)
 	}
@@ -38,8 +43,8 @@ func main() {
 		if err := process(inputFileInfo.path, config.MailServerConfig); err != nil {
 			log.Println(err)
 			postProcess(inputFileInfo, config.FileProcessorConfig.ErrorDir)
-		} else {// on error just move that file so other files in input dir can be processed
-		    //email eft processing error?
+		} else { // on error just move that file so other files in input dir can be processed
+			//email eft processing error?
 			postProcess(inputFileInfo, config.FileProcessorConfig.DoneDir)
 		}
 	}

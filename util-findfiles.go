@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"strings"
@@ -85,3 +86,15 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
+func ensureMandatoryDirsExist(dirs ...string) error {
+	for _, dir := range dirs {
+		info, err := os.Stat(dir)
+		if os.IsNotExist(err) {
+			return errors.New("mandatory dir not found. Hint: create necessary folders manually before executing: " + dir)
+		}
+		if !info.IsDir() {
+			return errors.New("mandatory dir not found. Hint: create necessary folders manually before executing: " + dir)
+		}
+	}
+	return nil
+}
