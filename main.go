@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(files)
+	log.Println("Files found for processing: ", files)
 
 	for _, inputFileInfo := range files {
 		//process input csv file
