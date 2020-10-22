@@ -19,17 +19,19 @@ fileProcessor:
 
 
 # fake-smtp-server
-mailServer:
-    host: "0.0.0.0"
-    port: 1025
-    user: "me@gmail.com"
-    password: ""
-# mk
-# mailserver:
-#     host: "mailint.markham.ca"
-#     port: 25
-#     user: "pnataraj@markham.ca"
+# mailServer:
+#     host: "0.0.0.0"
+#     port: 1025
+#     ccUser: "finance-noreply@gmail.com"
+#     user: ""
 #     password: ""
+# mk
+mailServer:
+    host: "mailext.markham.ca"
+    port: 25
+    ccUser: "finance-noreply@gmail.com"
+    user: ""
+    password: ""
 
 #gmail 
 # mailserver:

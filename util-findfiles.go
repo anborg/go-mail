@@ -12,8 +12,7 @@ import (
 
 func main12() {
 	// basePath := "/Volumes/data01/projects/projects_go/go-mail/inputfile*"
-	//basePath := "C:\\data\\projects\\projects_go\\go-mail\\input\\"
-	basePath := "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\"
+	basePath := "C:\\data\\projects\\projects_go\\go-mail\\input\\"
 	conf := FileProcessorConfig{GlobPath: "*566*.csv", InputDir: basePath, OlderThanSeconds: 2}
 	files, err := filesMatch(conf)
 	if err != nil {

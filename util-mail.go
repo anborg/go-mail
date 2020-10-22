@@ -19,7 +19,7 @@ type EmailInfo struct {
 func batchSendMail(config MailServerConfig, myarray EftInfos) error {
 	// Settings for SMTP server
 	dialer := gomail.NewDialer(config.Host, config.Port, config.User, config.Password)
-
+	//log.Println("DialerCof: ", config.Host, config.Port, config.User, config.Password)
 	// This is only needed when SSL/TLS certi
 
 	//certificate is not valid on server.
@@ -42,9 +42,9 @@ func batchSendMail(config MailServerConfig, myarray EftInfos) error {
 		}
 		log.Println(i, eftinfo)
 		// Set E-Mail sender
-		m.SetHeader("From", config.User)
+		m.SetHeader("From", config.CcUser)
 		m.SetHeader("To", eftinfo.Email)
-		m.SetHeader("Cc", config.User)
+		m.SetHeader("Cc", config.CcUser)
 		//m.SetHeader("Bcc", "office@example.com", "anotheroffice@example.com")
 		//m.SetAddressHeader("Reply-To", "noreply@example.com")
 		m.SetHeader("Subject", "Markham Notification - EFT")
