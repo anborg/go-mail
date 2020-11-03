@@ -45,7 +45,7 @@ func getEftFromCSV(path string) (EftInfos, error) {
 		// var contact := row[5]
 		efinfo.TransferAmount = row[6]
 		efinfo.TransferDate = row[7]
-		efinfo.InvoiceDetail = row[9]
+		efinfo.InvoiceDetail = cleanInvoiceBlob(row[9])
 		// efinfo.BankAccountNumber = row[2]
 
 		eftInfoArray = append(eftInfoArray, efinfo)
