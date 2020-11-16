@@ -18,7 +18,7 @@ func substr(input string, start int, length int) string {
 	return string(asRunes[start : start+length])
 }
 
-func main2() {
+func main() {
 	var x string = ` (I)8751                       PB20034 EST2 ASPHALT            31/07/20 $469974.60 001000006
 		(I)8753                       PB20034 EST3 ASPHALT            15/08/20 $583537.82 001000006
 		(I)8682                       PB20034 EST20101 ASPHALT        30/06/20$1353810.33 001000006
@@ -30,10 +30,15 @@ func main2() {
 
 func cleanInvoiceBlob(multiLineBlob string) (cleanInvoice string) {
 	scanner := bufio.NewScanner(strings.NewReader(multiLineBlob))
-	cleanInvoice = ""
+	cleanInvoice = "INVOICE#   DATE        AMOUNT          EFTREF#\n"
 	for scanner.Scan() {
 		var s = strings.TrimSpace(scanner.Text())
-		cleanInvoice = cleanInvoice + substr(s, 0, 7) + "  " + substr(s, 62, 8) + " " + substr(s, 70, 11) + "\n"
+		var invoiceNum = substr(s, 0, 7)
+		var date = substr(s, 62, 8)
+		var amount = substr(s, 70, 11)
+        var eftRef = substr(s, 81, 9)
+        str := []string{invoiceNum, date, amount, eftRef}
+		cleanInvoice = cleanInvoice + strings.Join(str, "    ") +"\n"
 	}
 	return
 }
