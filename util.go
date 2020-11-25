@@ -33,12 +33,12 @@ func cleanInvoiceBlob(multiLineBlob string) (cleanInvoice string) {
 	cleanInvoice = "INVOICE#   DATE        AMOUNT          EFTREF#\n"
 	for scanner.Scan() {
 		var s = strings.TrimSpace(scanner.Text())
-		var invoiceNum = substr(s, 0, 7)
+		var invoiceNum = strings.TrimSpace(substr(s, 0, 47))
 		var date = substr(s, 62, 8)
 		var amount = substr(s, 70, 11)
-        var eftRef = substr(s, 81, 9)
-        str := []string{invoiceNum, date, amount, eftRef}
-		cleanInvoice = cleanInvoice + strings.Join(str, "    ") +"\n"
+		var eftRef = substr(s, 81, 9)
+		str := []string{invoiceNum, date, amount, eftRef}
+		cleanInvoice = cleanInvoice + strings.Join(str, "    ") + "\n"
 	}
 	return
 }
