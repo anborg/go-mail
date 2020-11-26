@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // func main() {
@@ -32,10 +34,10 @@ func getEftFromCSV(path string) (EftInfos, error) {
 		// Read each record from csv
 		row, err := r.Read()
 		if err == io.EOF {
-			break
+			break //Not an error? Just ignore?
 		}
 		if err != nil {
-			return eftInfos, err
+			return eftInfos, fmt.Errorf("Error processing csv record=" + strconv.Itoa(count) + ", row=" + strings.Join(row, "|") + ",  detail=" + err.Error())
 		}
 		var efinfo EftInfo
 		efinfo.Email = row[1]
@@ -45,7 +47,7 @@ func getEftFromCSV(path string) (EftInfos, error) {
 		// var contact := row[5]
 		efinfo.TransferAmount = row[6]
 		efinfo.TransferDate = row[7]
-		efinfo.InvoiceDetail = cleanInvoiceBlob(row[9])
+		efinfo.Invoices = cleanInvoiceBlob(row[9])
 		// efinfo.BankAccountNumber = row[2]
 
 		eftInfoArray = append(eftInfoArray, efinfo)

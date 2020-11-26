@@ -13,8 +13,16 @@ type EftInfo struct {
 	Email             string `json:"email"`
 	BankAccountNumber string `json:"bankAccountNumber"`
 	//EFT Payment detail - could be []
-	InvoiceDetail    string `json:"invoiceNumber"`
-	TransferDate     string `json:"transferDate"`
-	TransferAmount   string `json:"transferAmount"`
-	PaymentReference string `json:"paymentReference"`
+	Invoices         []Invoice `json:"invoices"`
+	InvoiceDetail    string    `json:"invoiceNumber"`
+	TransferDate     string    `json:"transferDate"`
+	TransferAmount   string    `json:"transferAmount"`
+	PaymentReference string    `json:"paymentReference"`
+}
+
+type Invoice struct {
+	InvoiceNumber string `json:"invoiceNumber"`
+	Date          string `json:"date"`
+	Amount        string `json:"amount"`
+	Ref           string `json:"amount"`
 }

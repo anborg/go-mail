@@ -1,4 +1,5 @@
 app:
+
     logDir: "logs"
     lumberJackLogging:
         filename:   "logs/notify-eft/eft.log"
@@ -10,19 +11,23 @@ app:
 fileProcessor:
     globPath: "AP566*"
     olderThanSeconds: 2
-    inputDir : "C:\\data\\projects\\projects_go\\go-mail\\input\\"
-    doneDir  : "C:\\data\\projects\\projects_go\\go-mail\\done\\"
-    errorDir : "C:\\data\\projects\\projects_go\\go-mail\\error\\"
+    inputDir : "/Volumes/data01/projects/projects_go/go-mail/input/"
+    doneDir  : "/Volumes/data01/projects/projects_go/go-mail/done/"
+    errorDir : "/Volumes/data01/projects/projects_go/go-mail/error/"
+#    inputDir : "C:\\data\\projects\\projects_go\\go-mail\\input\\"
+#    doneDir  : "C:\\data\\projects\\projects_go\\go-mail\\done\\"
+#    errorDir : "C:\\data\\projects\\projects_go\\go-mail\\error\\"
     # inputDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\"
     # doneDir  : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\done\\"
     # errorDir : "\\\\markham.ca\\data\\Cayenta79_APDATA_TEST\\error\\"
 
 
 # fake-smtp-server
-# mailServer:
+#mailServer:
 #     host: "0.0.0.0"
 #     port: 1025
 #     ccUser: "finance-noreply@gmail.com"
+#     opsUser: "appsalert@google.com"
 #     user: ""
 #     password: ""
 # mk
@@ -30,6 +35,7 @@ mailServer:
     host: "mailext.markham.ca"
     port: 25
     ccUser: "finance-noreply@gmail.com"
+    opsUser: "appsalert@google.com"
     user: ""
     password: ""
 

@@ -52,6 +52,7 @@ type MailServerConfig struct {
 	Port     int    `yaml:"port"`
 	User     string `yaml:"user"`
 	CcUser   string `yaml:"ccUser"`
+	OpsUser  string `yaml:"opsUser"`
 	Password string `yaml:"password"` //not needed for m
 }
 

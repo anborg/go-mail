@@ -1,0 +1,18 @@
+Markham Notification
+{{.TodayDate}}
+
+Electronic Fund Transfer
+ATTN
+  {{.SupplierName}}
+  {{.Email}}
+  ID: {{.SupplierId}}
+
+Transfer details
+Date    Amount      EFTREF#
+{{.TransferDate}}   {{.TransferAmount}} {{.PaymentReference}}
+
+Invoice Details
+INVOICE#                 #DATE  #AMT    EFTREF#
+{{range .Invoices}}
+{{.InvoiceNumber}}   {{.Date}}  {{.Amount}} {{.Ref}}
+{{end}}
