@@ -10,6 +10,7 @@ import (
 
 //EmailInfo - convert eft into Email Data obj
 type EmailInfo struct {
+    From    string
 	To      string
 	Cc      string
 	Subject string
@@ -26,7 +27,7 @@ func errorEmail(config MailServerConfig, mailinfo EmailInfo) error {
 	}
 
 	message := gomail.NewMessage()
-	message.SetHeader("From", config.OpsUser)
+	message.SetHeader("From", mailinfo.From) //eftapp@
 	message.SetHeader("To", mailinfo.To) // for errors this should be adminEmail, opsEmail
 	message.SetHeader("Cc", mailinfo.Cc)
 	message.SetHeader("Subject", "ERROR: Markham Notification - EFT")

@@ -31,7 +31,7 @@ width: 100% !important
             <td class="email-masthead" style="color:#74787E;font-size:15px;line-height:18px;padding:0 0;text-align:left vertical-align:bottom">
               <table style="vertical-align:bottom">
                 <tr>
-                  <td  style="height:30px;"><img src= "https://www.markham.ca/wps/wcm/connect/markham/22e6495f-8034-4c4c-897c-bb860f20bd09/Markham+M+-+404+X+404.jpg?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_2QD4H901OGV160QC8BLCRJ1001-22e6495f-8034-4c4c-897c-bb860f20bd09-nl6vw94" style="max-height:60px">
+                  <td  style="height:30px;"><img width="60" height="60" src= "https://www.markham.ca/wps/wcm/connect/markham/22e6495f-8034-4c4c-897c-bb860f20bd09/Markham+M+-+404+X+404.jpg?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_2QD4H901OGV160QC8BLCRJ1001-22e6495f-8034-4c4c-897c-bb860f20bd09-nl6vw94" style="max-height:60px">
                 </td>
                 <td class="content-cell" style="color:#74787E;font-size:15px;padding:0;magin-bottom:0;text-align:bottom">
                   <h6 style="margin-top:0;margin-bottom:0;color:light-grey;font-size:13px;font-weight:bold">Markham Notification</h6>
@@ -96,8 +96,11 @@ width: 100% !important
                         <tr style="margin-top:0;line-height:1.5em;margin:0;color:#9BA2AB;font-size:12px">
                           <td>
                             <table class="data-table" cellpadding="0" cellspacing="0" style="width:100%;margin:0">
-                              <tr style="margin-top:0;line-height:1.5em;margin:0;color:#9BA2AB;font-size:12px">
-                                <th>INVOICE#</th><th>DATE</th><th>AMOUNT</th><th>EFTREF</th>
+                              <tr style="text-align:left;margin-top:0;line-height:1.5em;margin:0;color:#9BA2AB;font-size:12px">
+                                <th style="text-align:left;">INVOICE#</th>
+                                <th style="text-align:left;">DATE</th>
+                                <th style="text-align:left;">AMOUNT</th>
+                                <th style="text-align:left;">EFTREF</th>
                               </tr>
                               <tbody>
                               {{range .Invoices}}
