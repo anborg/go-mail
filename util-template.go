@@ -8,29 +8,29 @@ import (
 
 func main2() {
 	var eftinfo = EftInfo{
-	Email: "demo@gmail.com",
-	 TodayDate: "2020-09-01",
-	 SupplierName: "Jane Inc",
-	 SupplierId: "D004",
-	 BankAccountNumber: "111",
-	 TransferDate: "2019-09-01",
-	 TransferAmount: "100.54",
-	 InvoiceDetail: "big bla",
-	 Invoices: []Invoice {
-            {
-                InvoiceNumber: "123",
-                Date : "2020-01-01",
-                Amount: "$12.11",
-                Ref: "00011",
-            },
-            {
-                InvoiceNumber: "222",
-                Date : "2020-01-01",
-                Amount: "$12.11",
-                Ref: "00011",
-            },
-        },
-}
+		Email:        "demo@gmail.com",
+		TodayDate:    "2020-09-01",
+		SupplierName: "Jane Inc",
+		SupplierId:   "D004",
+		//BankAccountNumber: "111",
+		TransferDate:   "2019-09-01",
+		TransferAmount: "100.54",
+		//InvoiceDetail: "big bla",
+		Invoices: []Invoice{
+			{
+				InvoiceNumber: "123",
+				Date:          "2020-01-01",
+				Amount:        "$12.11",
+				Ref:           "00011",
+			},
+			{
+				InvoiceNumber: "222",
+				Date:          "2020-01-01",
+				Amount:        "$12.11",
+				Ref:           "00011",
+			},
+		},
+	}
 	// var bytesHtml bytes.Buffer
 
 	bytesHtml, err := ExecEftTemplate(eftinfo)
@@ -44,7 +44,7 @@ func main2() {
 // ExecEftTemplate apply info on Template to create html
 func ExecEftTemplate(eftinfo EftInfo) (bytes.Buffer, error) { //eftInfo EftInfo
 	eftTemplatePath := "templates/DEFAULT.gohtml"
-// 	eftTemplatePath := "templates/SAMPLE_TEMPLATE.txt" //for testing
+	// 	eftTemplatePath := "templates/SAMPLE_TEMPLATE.txt" //for testing
 	return execTempate(eftTemplatePath, eftinfo)
 }
 func execReceipt(eftTemplatePath string, eftinfo EftInfo) (bytes.Buffer, error) { //eftInfo EftInfo
