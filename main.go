@@ -65,10 +65,11 @@ func process(filePath string, mailConf MailServerConfig) error {
 	if err != nil {
 		var errStr = "Error parsing input file:" + filePath + err.Error()
 		emailInfo := EmailInfo{
+		    From: "eftapp",
 			To:      mailConf.OpsUser,
 			Cc:      mailConf.CcUser,
 			Subject: "Error: Markham Notification - EFT",
-			Body:    "Error while processing eft file : \n" + errStr,
+			Body:    "Error while processing eft file : \n\n" + errStr,
 		}
 		_ = errorEmail(mailConf, emailInfo)
 		log.Println(errStr) //Go to next file. Email?
