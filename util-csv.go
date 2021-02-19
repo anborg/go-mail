@@ -4,26 +4,43 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
-	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
-// func main() {
-// 	getEftFromCSV("cayinput556.csv")
-// }
+func main11() {
+	// re := regexp.MustCompile(`\r\r\n`)
 
-func getEftFromCSV(path string) (EftInfos, error) {
-	var eftInfos EftInfos
-	log.Println("Opening file " + path)
-	csvfile, err := os.Open(path)
+	path := "testfiles/AP566005_CRCRLF_present.csv"
+	data, err := ioutil.ReadFile(path)
+	input := string(data)
+
+	//fmt.Println(string(data))
 	if err != nil {
 		log.Println("Error opening "+path, err)
-		return eftInfos, err
+		// return eftInfos, err
 	}
-	defer csvfile.Close()
-	r := csv.NewReader(csvfile)
+	// eftInfo, err := getEftFromCSV("testfiles/cayinput566000.csv")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// log.Println(eftInfo)
+	eftInfo, err := getEftFromCSV(input)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(eftInfo)
+
+}
+
+func getEftFromCSV(csvString string) (EftInfos, error) {
+	re := regexp.MustCompile(`\r\r\n`)
+	csvString = re.ReplaceAllString(csvString, "\r\n")
+	var eftInfos EftInfos
+	r := csv.NewReader(strings.NewReader(csvString))
 	r.FieldsPerRecord = -1 // optional
 	r.TrimLeadingSpace = true
 	r.Read() //skip header line
@@ -56,6 +73,6 @@ func getEftFromCSV(path string) (EftInfos, error) {
 		count++
 	}
 	eftInfos.EftInfos = eftInfoArray
-	// log.Println("eftInfos L",eftInfos)
+	//log.Println("eftInfos :", eftInfos)
 	return eftInfos, nil
 }

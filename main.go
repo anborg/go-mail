@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -60,19 +61,24 @@ func postProcess(fileInfo InputFileInfo, targetPath string) {
 }
 
 func process(filePath string, mailConf MailServerConfig) error {
-
-	eftInfos, err := getEftFromCSV(filePath)
+	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		var errStr = "Error parsing input file:" + filePath + err.Error()
-		emailInfo := EmailInfo{
-		    From: "eftapp",
-			To:      mailConf.OpsUser,
-			Cc:      mailConf.CcUser,
-			Subject: "Error: Markham Notification - EFT",
-			Body:    "Error while processing eft file : \n\n" + errStr,
-		}
-		_ = errorEmail(mailConf, emailInfo)
+		var errStr = "Error opening input file: " + filePath + ", " + err.Error()
 		log.Println(errStr) //Go to next file. Email?
+		_ =sendErrorAlert(mailConf, errStr)
+		return err
+
+	}
+	input := string(data)
+
+	eftInfos, err := getEftFromCSV(input)
+	if err != nil {
+		var errStr = "Error parsing input file: " + filePath + ", " + err.Error()
+		log.Println(errStr) //Go to next file. Email?
+		err2 := sendErrorAlert(mailConf, errStr)
+		if err2 != nil {
+			log.Println(err2)
+		}
 		return err
 	}
 	//send mails
@@ -84,4 +90,16 @@ func process(filePath string, mailConf MailServerConfig) error {
 	log.Println("Processed done:", filePath, "Emails sent #: ", len(eftInfos.EftInfos)) //Go to next file. Email?
 
 	return nil
+}
+
+func sendErrorAlert(mailConf MailServerConfig, msg string) error {
+	emailInfo := EmailInfo{
+		From:    mailConf.OpsUser,
+		To:      mailConf.OpsUser,
+		Cc:      mailConf.CcUser,
+		Subject: "Error: Markham Notification - EFT",
+		Body:    "Error while processing eft file : \n\n" + msg,
+	}
+	err := errorEmail(mailConf, emailInfo)
+	return err
 }
