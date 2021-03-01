@@ -2,3 +2,6 @@
 *.exe
 go-mail
 .idea/
+/error/
+/done/
+/logs/
