@@ -65,13 +65,14 @@ func process(filePath string, mailConf MailServerConfig) error {
 	if err != nil {
 		var errStr = "Error opening input file: " + filePath + ", " + err.Error()
 		log.Println(errStr) //Go to next file. Email?
-		_ =sendErrorAlert(mailConf, errStr)
+		_ = sendErrorAlert(mailConf, errStr)
 		return err
 
 	}
 	input := string(data)
 
 	eftInfos, err := getEftFromCSV(input)
+	//eftInfos.EftInfos[1].Invoices
 	if err != nil {
 		var errStr = "Error parsing input file: " + filePath + ", " + err.Error()
 		log.Println(errStr) //Go to next file. Email?

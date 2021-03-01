@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-func main12() {
+func main13() {
 	basePath := "/Volumes/data01/projects/projects_go/go-mail/inputfile*"
 	//basePath := "C:\\data\\projects\\projects_go\\go-mail\\input\\"
 	conf := FileProcessorConfig{GlobPath: "*566*.csv", InputDir: basePath, OlderThanSeconds: 2}

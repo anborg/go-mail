@@ -38,7 +38,7 @@ func main11() {
 
 func getEftFromCSV(csvString string) (EftInfos, error) {
 	re := regexp.MustCompile(`\r\r\n`)
-	csvString = re.ReplaceAllString(csvString, "\r\n")
+	csvString = re.ReplaceAllString(csvString, "\r\n") //CRLF fix
 	var eftInfos EftInfos
 	r := csv.NewReader(strings.NewReader(csvString))
 	r.FieldsPerRecord = -1 // optional
