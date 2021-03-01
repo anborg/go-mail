@@ -62,9 +62,8 @@ func cleanInvoiceBlob(multiLineBlob string) (invoices []Invoice) {
 			//             cleanInvoice = cleanInvoice + strings.Join(str, "    ") + "\n"
 		}
 	}
-	//Order by invoice#
-	// Sort by age, keeping original order or equal elements.
-	sort.SliceStable(invoices, func(i, j int) bool {
+
+	sort.SliceStable(invoices, func(i, j int) bool { // Order by Invoice#
 		return invoices[i].InvoiceNumber < invoices[j].InvoiceNumber
 	})
 	return
