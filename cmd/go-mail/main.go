@@ -3,14 +3,26 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
+	"path/filepath"
 
 	"muni/go-mail/internal/config"
 	"muni/go-mail/internal/processor"
-	
+
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
+	// Set working directory to executable path
+	ex, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	exPath := filepath.Dir(ex)
+	if err := os.Chdir(exPath); err != nil {
+		log.Fatal(err)
+	}
+
 	//read cmdline
 	var configFile string
 	flag.StringVar(&configFile, "configFile", "config.yml", "Provid config file path,  e.g c:/my/dir/eftconf.yml")
