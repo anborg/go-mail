@@ -1,4 +1,6 @@
-package main
+package model
+
+import "os"
 
 //EftInfos arry of eft info objects
 type EftInfos struct {
@@ -14,7 +16,7 @@ type EftInfo struct {
 	//BankAccountNumber string `json:"bankAccountNumber"`
 	//EFT Payment detail - could be []
 	Invoices []Invoice `json:"invoices"`
-	//InvoiceDetail    string    `json:"invoiceNumber"`
+	InvoiceDetail    string    `json:"invoiceNumber"`
 	TransferDate   string `json:"transferDate"`
 	TransferAmount string `json:"transferAmount"`
 	//PaymentReference string    `json:"paymentReference"`
@@ -25,4 +27,10 @@ type Invoice struct {
 	Date          string `json:"date"`
 	Amount        string `json:"amount"`
 	Ref           string `json:"amount"`
+}
+
+// InputFileInfo wrapper to store path and os file info
+type InputFileInfo struct {
+	Path string
+	Info os.FileInfo
 }

@@ -27,7 +27,7 @@ See sample config.yml
 
 
 
-#### To learn : CHeck arrow json schema
+#### To learn : Check arrow json schema
 ```go
  if err := readEftJSON("eft-test1.json", &eftInfos); err != nil {
  	log.Fatal(err)

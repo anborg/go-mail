@@ -1,19 +1,10 @@
-package main
+package config
 
 import (
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
 )
-
-// func main() {
-// 	var conf Config
-// 	err := readConfig("config.yml", &conf)
-// 	if err != nil {
-// 		log.Panicln(err)
-// 	}
-// 	log.Println(conf)
-// }
 
 //Config required to run
 type Config struct {
@@ -53,10 +44,10 @@ type MailServerConfig struct {
 	User     string `yaml:"user"`
 	CcUser   string `yaml:"ccUser"`
 	OpsUser  string `yaml:"opsUser"`
-	Password string `yaml:"password"` //not needed for m
+	Password string `yaml:"password"`
 }
 
-func (cfg *Config) readConfig(path string) (err error) {
+func (cfg *Config) ReadConfig(path string) (err error) {
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
