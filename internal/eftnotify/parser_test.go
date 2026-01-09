@@ -1,7 +1,7 @@
 package eftnotify
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -13,7 +13,7 @@ func TestGetEftFromCSV(t *testing.T) {
 	testFilePath := filepath.Join("..", "..", "testfiles", "cayinput566000.csv")
 
 	// Read the file
-	content, err := ioutil.ReadFile(testFilePath)
+	content, err := os.ReadFile(testFilePath)
 	if err != nil {
 		t.Fatalf("Failed to read test file %s: %v", testFilePath, err)
 	}
@@ -75,7 +75,7 @@ func TestGetEftFromCSV_AP566005(t *testing.T) {
 	testFilePath := filepath.Join("..", "..", "testfiles", "AP566005_CRCRLF_present.csv")
 
 	// Read the file
-	content, err := ioutil.ReadFile(testFilePath)
+	content, err := os.ReadFile(testFilePath)
 	if err != nil {
 		t.Fatalf("Failed to read test file %s: %v", testFilePath, err)
 	}

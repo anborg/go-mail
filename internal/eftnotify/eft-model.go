@@ -2,34 +2,32 @@ package eftnotify
 
 import "os"
 
-//EftInfos arry of eft info objects
+// EftInfos represents a collection of EFT information.
 type EftInfos struct {
 	EftInfos []EftInfo `json:"eftInfos"`
 }
 
-//EftInfo object for one email
+// EftInfo holds information for a single email notification.
 type EftInfo struct {
-	TodayDate    string `json:"todayDate"`
-	SupplierName string `json:"supplierName"`
-	SupplierId   string `json:"supplierId"`
-	Email        string `json:"email"`
-	//BankAccountNumber string `json:"bankAccountNumber"`
-	//EFT Payment detail - could be []
-	Invoices []Invoice `json:"invoices"`
-	InvoiceDetail    string    `json:"invoiceNumber"`
-	TransferDate   string `json:"transferDate"`
-	TransferAmount string `json:"transferAmount"`
-	//PaymentReference string    `json:"paymentReference"`
+	TodayDate      string    `json:"todayDate"`
+	SupplierName   string    `json:"supplierName"`
+	SupplierId     string    `json:"supplierId"`
+	Email          string    `json:"email"`
+	Invoices       []Invoice `json:"invoices"`
+	InvoiceDetail  string    `json:"invoiceNumber"`
+	TransferDate   string    `json:"transferDate"`
+	TransferAmount string    `json:"transferAmount"`
 }
 
+// Invoice represents a single invoice within an EFT payment.
 type Invoice struct {
 	InvoiceNumber string `json:"invoiceNumber"`
 	Date          string `json:"date"`
 	Amount        string `json:"amount"`
-	Ref           string `json:"amount"`
+	Ref           string `json:"ref"`
 }
 
-// InputFileInfo wrapper to store path and os file info
+// InputFileInfo wraps path and os.FileInfo for processing.
 type InputFileInfo struct {
 	Path string
 	Info os.FileInfo

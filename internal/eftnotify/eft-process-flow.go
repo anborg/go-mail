@@ -1,7 +1,7 @@
 package eftnotify
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,74 +12,85 @@ import (
 	"muni/go-mail/internal/mail"
 )
 
-// Initialize prepares the package by validating necessary directories.
-func Initialize(conf config.FileProcessorConfig) error {
-	return ensureMandatoryDirsExist(conf.InputDir, conf.DoneDir, conf.ErrorDir)
+// Processor handles the end-to-end EFT notification flow.
+type Processor struct {
+	fileConf config.FileProcessorConfig
+	mailConf config.MailServerConfig
+}
+
+// NewProcessor creates a new EFT processor.
+func NewProcessor(fileConf config.FileProcessorConfig, mailConf config.MailServerConfig) *Processor {
+	return &Processor{
+		fileConf: fileConf,
+		mailConf: mailConf,
+	}
+}
+
+// Initialize prepares the environment by validating necessary directories.
+func (p *Processor) Initialize() error {
+	return ensureMandatoryDirsExist(p.fileConf.InputDir, p.fileConf.DoneDir, p.fileConf.ErrorDir)
 }
 
 func ensureMandatoryDirsExist(dirs ...string) error {
 	for _, dir := range dirs {
 		info, err := os.Stat(dir)
 		if os.IsNotExist(err) {
-			return errors.New("mandatory dir not found. Hint: create necessary folders manually before executing: " + dir)
+			return fmt.Errorf("mandatory dir not found: %s. Hint: create it manually", dir)
 		}
 		if !info.IsDir() {
-			return errors.New("mandatory dir not found. Hint: create necessary folders manually before executing: " + dir)
+			return fmt.Errorf("path is not a directory: %s", dir)
 		}
 	}
 	return nil
 }
 
-// FilesMatch finds files matching the configured glob pattern.
-func FilesMatch(conf config.FileProcessorConfig) (files []InputFileInfo, err error) {
-	matchGlob := conf.InputDir + conf.GlobPath //path.Join - Does not work for windows(see log snippet below), going back to +
-	log.Println("Find match for:", matchGlob)
-	err = filepath.Walk(conf.InputDir,
-		func(walkPath string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			// log.Println("File :", matchGlob, walkPath)
-			// Note: filepath.Match checks against the name, not the full path usually, unless pattern contains separators?
-			// But here we matched full path against full glob?
-			// The original code passed `matchGlob` (dir + glob) to `filepath.Match` against `walkPath` (full path).
-			// This works if matchGlob matches the full structure.
-			if matched, _ := filepath.Match(matchGlob, walkPath); matched == true { //info.Mode().IsRegular()
-				//fmt.Println("Yes glob match : ", walkPath, info.Size())
-				inputFileInfo := InputFileInfo{Path: walkPath, Info: info}
-				if isFileReadyForProcessing(inputFileInfo, conf) == true {
-					files = append(files, inputFileInfo) //fileInfo is expensive, just return and reuse
-				}
-			} else {
-				//fmt.Println("No glob match - Skip: ", walkPath, info.Size())
-			}
+// FilesMatch finds files matching the configured glob pattern that are ready for processing.
+func (p *Processor) FilesMatch() ([]InputFileInfo, error) {
+	matchGlob := filepath.Join(p.fileConf.InputDir, p.fileConf.GlobPath)
+	
+	log.Printf("Searching for files matching: %s", matchGlob)
+	
+	var files []InputFileInfo
+	err := filepath.Walk(p.fileConf.InputDir, func(walkPath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-			return nil
-		}) //filewalk
-	return
+		matched, err := filepath.Match(matchGlob, walkPath)
+		if err != nil {
+			return err
+		}
+
+		if matched {
+			inputFileInfo := InputFileInfo{Path: walkPath, Info: info}
+			if p.isFileReadyForProcessing(inputFileInfo) {
+				files = append(files, inputFileInfo)
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error walking input directory: %w", err)
+	}
+	return files, nil
 }
 
-func isFileReadyForProcessing(fileInfo InputFileInfo, conf config.FileProcessorConfig) bool {
-	if isOlderThanSecs(fileInfo.Info.ModTime(), conf.OlderThanSeconds) == false {
-		return false //too new, pass ...let time go..
+func (p *Processor) isFileReadyForProcessing(fileInfo InputFileInfo) bool {
+	if !isOlderThanSecs(fileInfo.Info.ModTime(), p.fileConf.OlderThanSeconds) {
+		return false
 	}
-	return isBankFileUploaded(fileInfo)
+	return p.isBankFileUploaded(fileInfo)
 }
 
 func isOlderThanSecs(fileTime time.Time, olderSec int) bool {
-	now := time.Now()
-	diff := now.Sub(fileTime)
-	cutoff := time.Duration(olderSec) * time.Second
-	//log.Println("Now:", time.Now(), ", Cutoff:", cutoff, ", diff:", diff)
-	return diff > cutoff
+	return time.Since(fileTime) > time.Duration(olderSec)*time.Second
 }
 
-func isBankFileUploaded(fileInfo InputFileInfo) bool {
-	//Original logic: bankfilepath := strings.ReplaceAll(fileInfo.path, "566", "565")
+func (p *Processor) isBankFileUploaded(fileInfo InputFileInfo) bool {
 	bankfilepath := strings.ReplaceAll(fileInfo.Path, "566", "565")
-	//log.Println("Check for this bank file : ", bankfilepath)
 	if fileExists(bankfilepath) {
-		log.Println("Bank file not processed YET! Skip: ", fileInfo.Info.Name(), bankfilepath)
+		log.Printf("Bank file %s exists. Skipping processing for %s", bankfilepath, fileInfo.Info.Name())
 		return false
 	}
 	return true
@@ -87,61 +98,46 @@ func isBankFileUploaded(fileInfo InputFileInfo) bool {
 
 func fileExists(filename string) bool {
 	info, err := os.Stat(filename)
-	//log.Println("fileExists(): info=", info)
 	if os.IsNotExist(err) {
 		return false
 	}
-	return !info.IsDir()
+	return err == nil && !info.IsDir()
 }
 
 // Process parses the CSV file and sends emails.
-func Process(filePath string, mailConf config.MailServerConfig) error {
+func (p *Processor) Process(filePath string) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		var errStr = "Error opening input file: " + filePath + ", " + err.Error()
-		log.Println(errStr) //Go to next file. Email?
-		_ = mail.SendErrorAlert(mailConf, "Error: Markham Notification - EFT", "Error while processing eft file : \n\n"+errStr)
+		errStr := fmt.Sprintf("Error opening input file %s: %v", filePath, err)
+		log.Println(errStr)
+		_ = mail.SendErrorAlert(p.mailConf, "Error: Markham Notification - EFT", errStr)
 		return err
-
 	}
-	input := string(data)
 
-	eftInfos, err := GetEftInfosFromCSV(input)
-	//eftInfos.EftInfos[1].Invoices
+	eftInfos, err := GetEftInfosFromCSV(string(data))
 	if err != nil {
-		var errStr = "Error parsing input file: " + filePath + ", " + err.Error()
-		log.Println(errStr) //Go to next file. Email?
-		err2 := mail.SendErrorAlert(mailConf, "Error: Markham Notification - EFT", "Error while processing eft file : \n\n"+errStr)
-		if err2 != nil {
-			log.Println(err2)
-		}
+		errStr := fmt.Sprintf("Error parsing input file %s: %v", filePath, err)
+		log.Println(errStr)
+		_ = mail.SendErrorAlert(p.mailConf, "Error: Markham Notification - EFT", errStr)
 		return err
 	}
-	//send mails
-	err1 := BatchSendMail(mailConf, eftInfos)
-	if err1 != nil {
-		log.Println("Error sending emails for input file:", filePath, err1) //Go to next file. Email?
-		return err1
-	}
-	log.Println("Processed done:", filePath, "Emails sent #: ", len(eftInfos.EftInfos)) //Go to next file. Email?
 
+	if err := BatchSendMail(p.mailConf, eftInfos); err != nil {
+		log.Printf("Error sending emails for %s: %v", filePath, err)
+		return err
+	}
+
+	log.Printf("Successfully processed %s. Emails sent: %d", filePath, len(eftInfos.EftInfos))
 	return nil
 }
 
 // PostProcess moves the file to the target directory with a timestamp.
-func PostProcess(fileInfo InputFileInfo, targetPath string) {
-	currentfileName := fileInfo.Info.Name()
-	newFileName := currentfileName + time.Now().Format("2006-01-02_150405.000") // Fixed format to standard Go time format string (original was 2020-01-31 which is not standard layout usage, Go uses Mon Jan 2 15:04:05 MST 2006 reference time)
-	// Original was: time.Now().Format("2020-01-31_154560.555") 
-	// The reference time is 2006-01-02 15:04:05.
-	// 2020-01-31... looks like they HARDCODED a specific format using non-standard chars or they misunderstood Go layouts.
-	// "2006-01-02" is the standard layout. 
-	// If I use their string literally "2020-01-31_154560.555", it might just print static text if it doesn't match reference.
-	// But it seems they wanted a timestamp.
-	// I'll assume they wanted a timestamp. "2006-01-02_150405.000" is a safe bet for a unique timestamp.
-	
-	newfullName := targetPath + newFileName
-	if e := os.Rename(fileInfo.Path, newfullName); e != nil {
-		log.Fatal("Error moving processed file to target dir: ", newfullName, e)
-	} //
+func (p *Processor) PostProcess(fileInfo InputFileInfo, targetPath string) {
+	timestamp := time.Now().Format("2006-01-02_150405.000")
+	newFileName := fileInfo.Info.Name() + "_" + timestamp
+	newFullName := filepath.Join(targetPath, newFileName)
+
+	if err := os.Rename(fileInfo.Path, newFullName); err != nil {
+		log.Fatalf("Critical error: failed to move processed file %s to %s: %v", fileInfo.Path, newFullName, err)
+	}
 }

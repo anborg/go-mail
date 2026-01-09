@@ -15,11 +15,6 @@ func TestReadConfig(t *testing.T) {
     }
 
     // Assert: App Config
-    expectedLogDir := "logs"
-    if conf.AppConfig.LogDir != expectedLogDir {
-        t.Errorf("Expected LogDir to be '%s', got '%s'", expectedLogDir, conf.AppConfig.LogDir)
-    }
-    
     expectedLogFile := "logs/notify-eft/eft.log"
     if conf.AppConfig.LumberjackLogConfig.Filename != expectedLogFile {
         t.Errorf("Expected Log Filename to be '%s', got '%s'", expectedLogFile, conf.AppConfig.LumberjackLogConfig.Filename)

@@ -29,6 +29,7 @@ func ErrorEmail(conf config.MailServerConfig, mailinfo EmailInfo) error {
 	if err != nil {
 		return err
 	}
+	defer sendCloser.Close()
 
 	message := gomail.NewMessage()
 	message.SetHeader("From", mailinfo.From)

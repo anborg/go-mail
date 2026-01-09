@@ -8,4 +8,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+require (
+	github.com/mocktools/go-smtp-mock/v2 v2.5.1 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+)

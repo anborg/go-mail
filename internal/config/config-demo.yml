@@ -1,6 +1,5 @@
 app:
 
-    logDir: "logs"
     lumberJackLogging:
         filename:   "logs/notify-eft/eft.log"
         maxSize:    500

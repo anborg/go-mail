@@ -1,7 +1,8 @@
 package config
 
 import (
-	"io/ioutil"
+	"fmt"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -15,7 +16,6 @@ type Config struct {
 
 // AppConfig App related config - eg logging
 type AppConfig struct {
-	LogDir              string              `yaml:"logDir"`
 	LumberjackLogConfig LumberjackLogConfig `yaml:"lumberJackLogging"`
 }
 
@@ -48,7 +48,7 @@ type MailServerConfig struct {
 }
 
 func (cfg *Config) ReadConfig(path string) (err error) {
-	yamlFile, err := ioutil.ReadFile(path)
+	yamlFile, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -56,5 +56,22 @@ func (cfg *Config) ReadConfig(path string) (err error) {
 	if err != nil {
 		return err
 	}
-	return
+	return cfg.Validate()
+}
+
+// Validate checks if the configuration is valid.
+func (cfg *Config) Validate() error {
+	if cfg.FileProcessorConfig.InputDir == "" {
+		return fmt.Errorf("inputDir is mandatory")
+	}
+	if cfg.FileProcessorConfig.DoneDir == "" {
+		return fmt.Errorf("doneDir is mandatory")
+	}
+	if cfg.FileProcessorConfig.ErrorDir == "" {
+		return fmt.Errorf("errorDir is mandatory")
+	}
+	if cfg.MailServerConfig.Host == "" {
+		return fmt.Errorf("mailServer host is mandatory")
+	}
+	return nil
 }

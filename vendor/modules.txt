@@ -1,3 +1,6 @@
+# github.com/mocktools/go-smtp-mock/v2 v2.5.1
+## explicit; go 1.15
+github.com/mocktools/go-smtp-mock/v2
 # gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc
 ## explicit
 gopkg.in/alexcesaro/quotedprintable.v3

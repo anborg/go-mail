@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,77 +16,82 @@ import (
 
 func main() {
 	// Set working directory to executable path
-	ex, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	exPath := filepath.Dir(ex)
-	if err := os.Chdir(exPath); err != nil {
+	if err := chdirToExecutable(); err != nil {
 		log.Fatal(err)
 	}
 
-	//read cmdline
-	var configFile string
-	flag.StringVar(&configFile, "configFile", "config.yml", "Provid config file path,  e.g c:/my/dir/eftconf.yml")
+	configFile := flag.String("configFile", "config.yml", "Path to config file")
 	flag.Parse()
-	//Read config
+
 	var conf config.Config
-	if err := conf.ReadConfig(configFile); err != nil {
-		log.Fatalf("Error reading config file : %s, %v", configFile, err)
-	} else {
-		log.Println("Config: ", conf)
-		log.Println("Check log file for details :", conf.AppConfig.LumberjackLogConfig.Filename)
+	if err := conf.ReadConfig(*configFile); err != nil {
+		log.Fatalf("Error reading config file: %v", err)
 	}
 
-	//config log //TODO perhaps long to system.out sstem.error and then use infra to process log location/output?
-	logconf := conf.AppConfig.LumberjackLogConfig
-	
-	// Check if log file needs rotation (older than 1 month or > 10MB)
-	rotateLogIfNeeded(logconf.Filename)
+	setupLogging(conf.AppConfig.LumberjackLogConfig)
 
-	log.SetOutput(&lumberjack.Logger{Filename: logconf.Filename, MaxSize: logconf.MaxSize, MaxBackups: logconf.MaxBackups, MaxAge: logconf.MaxAge, Compress: logconf.Compress})
-	fileProcessorConf := conf.FileProcessorConfig
-	if err := eftnotify.Initialize(fileProcessorConf); err != nil {
-		log.Fatal(err)
+	processor := eftnotify.NewProcessor(conf.FileProcessorConfig, conf.MailServerConfig)
+	if err := processor.Initialize(); err != nil {
+		log.Fatalf("Initialization failed: %v", err)
 	}
 
-	//trigger -- filesToProcses
-	files, err := eftnotify.FilesMatch(fileProcessorConf)
+	files, err := processor.FilesMatch()
 	if err != nil {
-		log.Println(err)
-	}
-	log.Println("Files found for processing: ", files)
-
-	for _, inputFileInfo := range files {
-		//process input csv file
-		if err := eftnotify.Process(inputFileInfo.Path, conf.MailServerConfig); err != nil {
-			log.Println(err)
-			eftnotify.PostProcess(inputFileInfo, conf.FileProcessorConfig.ErrorDir)
-		} else { // on error just move that file so other files in input dir can be processed
-			//email eft processing error?
-			eftnotify.PostProcess(inputFileInfo, conf.FileProcessorConfig.DoneDir)
-		}
+		log.Printf("Error finding files: %v", err)
 	}
 
-} //main
+	if len(files) == 0 {
+		log.Println("No files found for processing.")
+		return
+	}
 
-func rotateLogIfNeeded(filename string) {
-	if info, err := os.Stat(filename); err == nil {
-		// 1 month = 30 days roughly
-		isOld := time.Since(info.ModTime()) > 30*24*time.Hour
-		isLarge := info.Size() > 2*1024*1024 // 2MB
-
-		if isOld || isLarge {
-			ext := filepath.Ext(filename)
-			name := strings.TrimSuffix(filename, ext)
-			backupName := fmt.Sprintf("%s-%s%s", name, time.Now().Format("20060102-150405"), ext)
-
-			if err := os.Rename(filename, backupName); err != nil {
-				log.Printf("Failed to rotate existing log file: %v", err)
-			} else {
-				log.Printf("Rotated existing log file to: %s", backupName)
-			}
+	for _, file := range files {
+		if err := processor.Process(file.Path); err != nil {
+			log.Printf("Processing failed for %s: %v", file.Path, err)
+			processor.PostProcess(file, conf.FileProcessorConfig.ErrorDir)
+		} else {
+			processor.PostProcess(file, conf.FileProcessorConfig.DoneDir)
 		}
 	}
 }
 
+func chdirToExecutable() error {
+	ex, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	return os.Chdir(filepath.Dir(ex))
+}
+
+func setupLogging(logconf config.LumberjackLogConfig) {
+	rotateLogIfNeeded(logconf.Filename)
+	log.SetOutput(&lumberjack.Logger{
+		Filename:   logconf.Filename,
+		MaxSize:    logconf.MaxSize,
+		MaxBackups: logconf.MaxBackups,
+		MaxAge:     logconf.MaxAge,
+		Compress:   logconf.Compress,
+	})
+}
+
+func rotateLogIfNeeded(filename string) {
+	info, err := os.Stat(filename)
+	if err != nil {
+		return
+	}
+
+	isOld := time.Since(info.ModTime()) > 30*24*time.Hour
+	isLarge := info.Size() > 2*1024*1024 // 2MB
+
+	if isOld || isLarge {
+		ext := filepath.Ext(filename)
+		name := strings.TrimSuffix(filename, ext)
+		backupName := filepath.Join(filepath.Dir(filename), name+"-"+time.Now().Format("20060102-150405")+ext)
+
+		if err := os.Rename(filename, backupName); err != nil {
+			log.Printf("Failed to rotate log file: %v", err)
+		} else {
+			log.Printf("Rotated log file to: %s", backupName)
+		}
+	}
+}
