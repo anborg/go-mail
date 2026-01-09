@@ -1,4 +1,4 @@
-package parser
+package eftnotify
 
 import (
 	"io/ioutil"
@@ -19,7 +19,7 @@ func TestGetEftFromCSV(t *testing.T) {
 	}
 
 	// Parse CSV
-	eftInfos, err := GetEftFromCSV(string(content))
+	eftInfos, err := GetEftInfosFromCSV(string(content))
 	if err != nil {
 		t.Fatalf("GetEftFromCSV returned error: %v", err)
 	}
@@ -81,7 +81,7 @@ func TestGetEftFromCSV_AP566005(t *testing.T) {
 	}
 
 	// Parse CSV
-	eftInfos, err := GetEftFromCSV(string(content))
+	eftInfos, err := GetEftInfosFromCSV(string(content))
 	if err != nil {
 		t.Fatalf("GetEftFromCSV returned error: %v", err)
 	}

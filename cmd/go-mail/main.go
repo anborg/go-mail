@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"muni/go-mail/internal/config"
-	"muni/go-mail/internal/processor"
+	"muni/go-mail/internal/eftnotify"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -47,12 +47,12 @@ func main() {
 
 	log.SetOutput(&lumberjack.Logger{Filename: logconf.Filename, MaxSize: logconf.MaxSize, MaxBackups: logconf.MaxBackups, MaxAge: logconf.MaxAge, Compress: logconf.Compress})
 	fileProcessorConf := conf.FileProcessorConfig
-	if err := processor.EnsureMandatoryDirsExist(fileProcessorConf.InputDir, fileProcessorConf.DoneDir, fileProcessorConf.ErrorDir); err != nil {
+	if err := eftnotify.Initialize(fileProcessorConf); err != nil {
 		log.Fatal(err)
 	}
 
 	//trigger -- filesToProcses
-	files, err := processor.FilesMatch(fileProcessorConf)
+	files, err := eftnotify.FilesMatch(fileProcessorConf)
 	if err != nil {
 		log.Println(err)
 	}
@@ -60,12 +60,12 @@ func main() {
 
 	for _, inputFileInfo := range files {
 		//process input csv file
-		if err := processor.Process(inputFileInfo.Path, conf.MailServerConfig); err != nil {
+		if err := eftnotify.Process(inputFileInfo.Path, conf.MailServerConfig); err != nil {
 			log.Println(err)
-			processor.PostProcess(inputFileInfo, conf.FileProcessorConfig.ErrorDir)
+			eftnotify.PostProcess(inputFileInfo, conf.FileProcessorConfig.ErrorDir)
 		} else { // on error just move that file so other files in input dir can be processed
 			//email eft processing error?
-			processor.PostProcess(inputFileInfo, conf.FileProcessorConfig.DoneDir)
+			eftnotify.PostProcess(inputFileInfo, conf.FileProcessorConfig.DoneDir)
 		}
 	}
 
