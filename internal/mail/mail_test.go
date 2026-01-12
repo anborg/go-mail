@@ -2,7 +2,6 @@ package mail
 
 import (
 	"fmt"
-	"muni/go-mail/internal/config"
 	"strings"
 	"testing"
 	"time"
@@ -23,7 +22,7 @@ func TestEmail(t *testing.T) {
 	defer server.Stop()
 
 	// 2. Prepare config pointing to mock server
-	conf := config.MailServerConfig{
+	conf := MailServerConfig{
 		Host:     "127.0.0.1",
 		Port:     server.PortNumber(),
 		User:     "testuser",
@@ -60,38 +59,10 @@ func TestEmail(t *testing.T) {
 	}
 }
 
-func TestSendErrorAlert(t *testing.T) {
-	server := smtpmock.New(smtpmock.ConfigurationAttr{})
-	if err := server.Start(); err != nil {
-		t.Fatal(err)
-	}
-	defer server.Stop()
-
-	conf := config.MailServerConfig{
-		Host:    "127.0.0.1",
-		Port:    server.PortNumber(),
-		OpsUser: "ops@example.com",
-		CcUser:  "cc@example.com",
-	}
-
-	svc := NewService(conf)
-	err := svc.SendErrorAlert("Alert Subject", "Alert Body")
-	if err != nil {
-		t.Errorf("SendErrorAlert failed: %v", err)
-	}
-
-	messages, err := server.WaitForMessages(1, 2*time.Second)
-	if err != nil {
-		t.Fatalf("Expected 1 message, got error: %v", err)
-	}
-	if len(messages) != 1 {
-		t.Errorf("Expected 1 message, got %d", len(messages))
-	}
-}
 
 func TestEmail_ConnectionError(t *testing.T) {
 	// Point to a port that is likely closed or invalid
-	conf := config.MailServerConfig{
+	conf := MailServerConfig{
 		Host: "127.0.0.1",
 		Port: 9999,
 	}

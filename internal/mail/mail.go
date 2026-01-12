@@ -2,32 +2,20 @@ package mail
 
 import (
 	"crypto/tls"
-	"muni/go-mail/internal/config"
 
 	gomail "gopkg.in/mail.v2"
 )
 
 // Service provides email sending capabilities.
 type Service struct {
-	conf config.MailServerConfig
+	conf MailServerConfig
 }
 
 // NewService creates a new mail service.
-func NewService(conf config.MailServerConfig) *Service {
+func NewService(conf MailServerConfig) *Service {
 	return &Service{conf: conf}
 }
 
-// SendErrorAlert sends an error notification email.
-func (s *Service) SendErrorAlert(subject string, body string) error {
-	emailInfo := EmailInfo{
-		From:    s.conf.OpsUser,
-		To:      s.conf.OpsUser,
-		Cc:      s.conf.CcUser,
-		Subject: subject,
-		Body:    body,
-	}
-	return s.Email(emailInfo)
-}
 
 // Email sends an email based on EmailInfo.
 func (s *Service) Email(mailinfo EmailInfo) error {

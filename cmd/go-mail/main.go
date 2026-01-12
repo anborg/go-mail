@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"muni/go-mail/internal/config"
-	"muni/go-mail/internal/eftnotify"
+	"muni/go-mail/internal/eftprocess"
 	"muni/go-mail/internal/mail"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -22,6 +22,7 @@ type LogWriter struct {
 	hostname string
 }
 
+// Write implements io.Writer. A prefix is added to the log message.
 func (l *LogWriter) Write(p []byte) (n int, err error) {
 	prefix := fmt.Sprintf("%s %s ", time.Now().Format("2006-01-02-15-04-05-000"), l.hostname)
 	_, err = l.target.Write([]byte(prefix))
@@ -46,13 +47,15 @@ func main() {
 	}
 
 	setupLogging(conf.AppConfig.LumberjackLogConfig)
+	processor, err := func() (*eftprocess.Processor, error) {
+		// Initialize mail service and notifier
+		mailService := mail.NewService(conf.MailServerConfig)
+		notifier := eftprocess.NewNotifier(mailService, conf.MailServerConfig)
 
-	// Initialize mail service and notifier
-	mailService := mail.NewService(conf.MailServerConfig)
-	notifier := eftnotify.NewNotifier(mailService, conf.MailServerConfig)
+		return eftprocess.NewProcessor(conf.FileProcessorConfig, notifier)
+	}()
 
-	processor := eftnotify.NewProcessor(conf.FileProcessorConfig, notifier)
-	if err := processor.Initialize(); err != nil {
+	if err != nil {
 		log.Fatalf("Initialization failed: %v", err)
 	}
 

@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"os"
 
+	"muni/go-mail/internal/eftprocess"
+	"muni/go-mail/internal/mail"
+
 	"gopkg.in/yaml.v2"
 )
 
 //Config required to run
 type Config struct {
 	AppConfig           AppConfig           `yaml:"app"`
-	FileProcessorConfig FileProcessorConfig `yaml:"fileProcessor"`
-	MailServerConfig    MailServerConfig    `yaml:"mailServer"`
+	FileProcessorConfig eftprocess.FileProcessorConfig `yaml:"fileProcessor"`
+	MailServerConfig    mail.MailServerConfig    `yaml:"mailServer"`
 }
 
 // AppConfig App related config - eg logging
@@ -28,24 +31,7 @@ type LumberjackLogConfig struct {
 	Compress   bool   `yaml:"compress" json:"Compress,bool"`
 }
 
-// FileProcessorConfig Files to pocess. Specify  which/where/when. which (glob), where (dir), when (old/young)
-type FileProcessorConfig struct {
-	GlobPath         string `yaml:"globPath"`
-	OlderThanSeconds int    `yaml:"olderThanSeconds"`
-	InputDir         string `yaml:"inputDir"`
-	DoneDir          string `yaml:"doneDir"`
-	ErrorDir         string `yaml:"errorDir"`
-}
 
-// MailServerConfig smtp server details
-type MailServerConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	CcUser   string `yaml:"ccUser"`
-	OpsUser  string `yaml:"opsUser"`
-	Password string `yaml:"password"`
-}
 
 func (cfg *Config) ReadConfig(path string) (err error) {
 	yamlFile, err := os.ReadFile(path)
