@@ -10,7 +10,7 @@ import (
 	smtpmock "github.com/mocktools/go-smtp-mock/v2"
 )
 
-func TestErrorEmail(t *testing.T) {
+func TestEmail(t *testing.T) {
 	// 1. Start mock SMTP server
 	server := smtpmock.New(smtpmock.ConfigurationAttr{
 		LogToStdout:       false,
@@ -41,9 +41,10 @@ func TestErrorEmail(t *testing.T) {
 	}
 
 	// 3. Call the function
-	err := ErrorEmail(conf, info)
+	svc := NewService(conf)
+	err := svc.Email(info)
 	if err != nil {
-		t.Fatalf("ErrorEmail failed: %v", err)
+		t.Fatalf("Email failed: %v", err)
 	}
 
 	// 4. Verify mock server received the message
@@ -59,7 +60,6 @@ func TestErrorEmail(t *testing.T) {
 	}
 }
 
-
 func TestSendErrorAlert(t *testing.T) {
 	server := smtpmock.New(smtpmock.ConfigurationAttr{})
 	if err := server.Start(); err != nil {
@@ -74,7 +74,8 @@ func TestSendErrorAlert(t *testing.T) {
 		CcUser:  "cc@example.com",
 	}
 
-	err := SendErrorAlert(conf, "Alert Subject", "Alert Body")
+	svc := NewService(conf)
+	err := svc.SendErrorAlert("Alert Subject", "Alert Body")
 	if err != nil {
 		t.Errorf("SendErrorAlert failed: %v", err)
 	}
@@ -88,7 +89,7 @@ func TestSendErrorAlert(t *testing.T) {
 	}
 }
 
-func TestErrorEmail_ConnectionError(t *testing.T) {
+func TestEmail_ConnectionError(t *testing.T) {
 	// Point to a port that is likely closed or invalid
 	conf := config.MailServerConfig{
 		Host: "127.0.0.1",
@@ -96,7 +97,8 @@ func TestErrorEmail_ConnectionError(t *testing.T) {
 	}
 	info := EmailInfo{From: "s@e.com", To: "r@e.com"}
 
-	err := ErrorEmail(conf, info)
+	svc := NewService(conf)
+	err := svc.Email(info)
 	if err == nil {
 		t.Error("Expected error for invalid connection, got nil")
 	} else {

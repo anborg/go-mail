@@ -2,6 +2,7 @@ package eftnotify
 
 import (
 	"muni/go-mail/internal/config"
+	"muni/go-mail/internal/mail"
 	"os"
 	"testing"
 	"time"
@@ -62,13 +63,17 @@ func TestBatchSendMail(t *testing.T) {
 		},
 	}
 
-	// 4. Call BatchSendMail
-	err = BatchSendMail(conf, eftInfos)
+	// 4. Initialize mail service and notifier
+	mailService := mail.NewService(conf)
+	notifier := NewNotifier(mailService, conf)
+
+	// 5. Call NotifyAll
+	err = notifier.NotifyAll(eftInfos)
 	if err != nil {
-		t.Fatalf("BatchSendMail failed: %v", err)
+		t.Fatalf("NotifyAll failed: %v", err)
 	}
 
-	// 5. Verify mock server received both messages
+	// 6. Verify mock server received both messages
 	messages, err := server.WaitForMessages(2, 2*time.Second)
 	if err != nil {
 		t.Fatalf("Failed to receive 2 messages: %v", err)

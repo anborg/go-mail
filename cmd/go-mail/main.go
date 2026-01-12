@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,9 +12,24 @@ import (
 
 	"muni/go-mail/internal/config"
 	"muni/go-mail/internal/eftnotify"
+	"muni/go-mail/internal/mail"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 )
+
+type LogWriter struct {
+	target   io.Writer
+	hostname string
+}
+
+func (l *LogWriter) Write(p []byte) (n int, err error) {
+	prefix := fmt.Sprintf("%s %s ", time.Now().Format("2006-01-02-15-04-05-000"), l.hostname)
+	_, err = l.target.Write([]byte(prefix))
+	if err != nil {
+		return 0, err
+	}
+	return l.target.Write(p)
+}
 
 func main() {
 	// Set working directory to executable path
@@ -30,7 +47,11 @@ func main() {
 
 	setupLogging(conf.AppConfig.LumberjackLogConfig)
 
-	processor := eftnotify.NewProcessor(conf.FileProcessorConfig, conf.MailServerConfig)
+	// Initialize mail service and notifier
+	mailService := mail.NewService(conf.MailServerConfig)
+	notifier := eftnotify.NewNotifier(mailService, conf.MailServerConfig)
+
+	processor := eftnotify.NewProcessor(conf.FileProcessorConfig, notifier)
 	if err := processor.Initialize(); err != nil {
 		log.Fatalf("Initialization failed: %v", err)
 	}
@@ -65,12 +86,19 @@ func chdirToExecutable() error {
 
 func setupLogging(logconf config.LumberjackLogConfig) {
 	rotateLogIfNeeded(logconf.Filename)
-	log.SetOutput(&lumberjack.Logger{
+	lumberjackLogger := &lumberjack.Logger{
 		Filename:   logconf.Filename,
 		MaxSize:    logconf.MaxSize,
 		MaxBackups: logconf.MaxBackups,
 		MaxAge:     logconf.MaxAge,
 		Compress:   logconf.Compress,
+	}
+
+	hostname, _ := os.Hostname()
+	log.SetFlags(0) // Disable default timestamps
+	log.SetOutput(&LogWriter{
+		target:   lumberjackLogger,
+		hostname: hostname,
 	})
 }
 

@@ -1,6 +1,7 @@
 # Binaries for programs and plugins
 *.exe
 *.out
+*.log
 /go-mail
 .idea/
 /error/

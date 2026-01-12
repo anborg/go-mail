@@ -7,22 +7,31 @@ import (
 	gomail "gopkg.in/mail.v2"
 )
 
+// Service provides email sending capabilities.
+type Service struct {
+	conf config.MailServerConfig
+}
 
+// NewService creates a new mail service.
+func NewService(conf config.MailServerConfig) *Service {
+	return &Service{conf: conf}
+}
 
-func SendErrorAlert(mailConf config.MailServerConfig, subject string, body string) error {
+// SendErrorAlert sends an error notification email.
+func (s *Service) SendErrorAlert(subject string, body string) error {
 	emailInfo := EmailInfo{
-		From:    mailConf.OpsUser,
-		To:      mailConf.OpsUser,
-		Cc:      mailConf.CcUser,
+		From:    s.conf.OpsUser,
+		To:      s.conf.OpsUser,
+		Cc:      s.conf.CcUser,
 		Subject: subject,
 		Body:    body,
 	}
-	err := ErrorEmail(mailConf, emailInfo)
-	return err
+	return s.Email(emailInfo)
 }
 
-func ErrorEmail(conf config.MailServerConfig, mailinfo EmailInfo) error {
-	dialer := gomail.NewDialer(conf.Host, conf.Port, conf.User, conf.Password)
+// Email sends an email based on EmailInfo.
+func (s *Service) Email(mailinfo EmailInfo) error {
+	dialer := gomail.NewDialer(s.conf.Host, s.conf.Port, s.conf.User, s.conf.Password)
 	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	sendCloser, err := dialer.Dial()
@@ -43,5 +52,3 @@ func ErrorEmail(conf config.MailServerConfig, mailinfo EmailInfo) error {
 	}
 	return nil
 }
-
-

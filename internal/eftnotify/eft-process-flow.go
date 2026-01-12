@@ -9,20 +9,19 @@ import (
 	"time"
 
 	"muni/go-mail/internal/config"
-	"muni/go-mail/internal/mail"
 )
 
 // Processor handles the end-to-end EFT notification flow.
 type Processor struct {
 	fileConf config.FileProcessorConfig
-	mailConf config.MailServerConfig
+	notifier Notifier
 }
 
 // NewProcessor creates a new EFT processor.
-func NewProcessor(fileConf config.FileProcessorConfig, mailConf config.MailServerConfig) *Processor {
+func NewProcessor(fileConf config.FileProcessorConfig, notifier Notifier) *Processor {
 	return &Processor{
 		fileConf: fileConf,
-		mailConf: mailConf,
+		notifier: notifier,
 	}
 }
 
@@ -110,7 +109,7 @@ func (p *Processor) Process(filePath string) error {
 	if err != nil {
 		errStr := fmt.Sprintf("Error opening input file %s: %v", filePath, err)
 		log.Println(errStr)
-		_ = mail.SendErrorAlert(p.mailConf, "Error: Markham Notification - EFT", errStr)
+		_ = p.notifier.Error("Error: Markham Notification - EFT", errStr)
 		return err
 	}
 
@@ -118,11 +117,11 @@ func (p *Processor) Process(filePath string) error {
 	if err != nil {
 		errStr := fmt.Sprintf("Error parsing input file %s: %v", filePath, err)
 		log.Println(errStr)
-		_ = mail.SendErrorAlert(p.mailConf, "Error: Markham Notification - EFT", errStr)
+		_ = p.notifier.Error("Error: Markham Notification - EFT", errStr)
 		return err
 	}
 
-	if err := BatchSendMail(p.mailConf, eftInfos); err != nil {
+	if err := p.notifier.NotifyAll(eftInfos); err != nil {
 		log.Printf("Error sending emails for %s: %v", filePath, err)
 		return err
 	}
