@@ -1,8 +1,10 @@
 # Binaries for programs and plugins
 *.exe
+*.out
 /go-mail
 .idea/
 /error/
 /done/
 /logs/
 /.vscode/
+/coverage_data/

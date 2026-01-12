@@ -21,3 +21,8 @@
 2020/10/21 19:48:23 eftInfo 1: D CRUPI & SONS LIMITED
 2020/10/21 19:48:23 Error sending emails for input file: C:\data\projects\projects_go\go-mail\input\cayinput566000.csv 421 4.3.2 Service not available
 2020/10/21 19:48:23 421 4.3.2 Service not available
+2026/01/12 13:48:11 Searching for files matching: input\AP566*.csv
+2026/01/12 13:48:11 Sending email to: pnataraj@markham.ca
+2026/01/12 13:48:11 Sending email to: pnataraj@markham.ca
+2026/01/12 13:48:11 Error sending emails for input\AP566000.csv: dial tcp [::1]:1025: connectex: No connection could be made because the target machine actively refused it.
+2026/01/12 13:48:11 Processing failed for input\AP566000.csv: dial tcp [::1]:1025: connectex: No connection could be made because the target machine actively refused it.

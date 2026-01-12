@@ -1,0 +1,16 @@
+﻿app:
+  lumberJackLogging:
+    filename: "logs/eft.log"
+    maxSize: 10
+    maxBackups: 3
+    maxAge: 28
+    compress: true
+fileProcessor:
+  globPath: "AP566*.csv"
+  olderThanSeconds: -1
+  inputDir: "input/"
+  doneDir: "done/"
+  errorDir: "error/"
+mailServer:
+  host: "localhost"
+  port: 1025
